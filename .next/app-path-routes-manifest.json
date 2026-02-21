@@ -1,0 +1,14 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/api/auth/[...nextauth]/route": "/api/auth/[...nextauth]",
+  "/api/extract/route": "/api/extract",
+  "/download/page": "/download",
+  "/favicon.ico/route": "/favicon.ico",
+  "/feed/page": "/feed",
+  "/item/[id]/page": "/item/[id]",
+  "/page": "/",
+  "/personalize/page": "/personalize",
+  "/read/[id]/page": "/read/[id]",
+  "/saved/page": "/saved"
+}

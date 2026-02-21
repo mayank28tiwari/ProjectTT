@@ -1,0 +1,14 @@
+{
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
+  "/api/extract/route": "app/api/extract/route.js",
+  "/download/page": "app/download/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/feed/page": "app/feed/page.js",
+  "/item/[id]/page": "app/item/[id]/page.js",
+  "/page": "app/page.js",
+  "/personalize/page": "app/personalize/page.js",
+  "/read/[id]/page": "app/read/[id]/page.js",
+  "/saved/page": "app/saved/page.js"
+}
