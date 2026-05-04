@@ -1,7 +1,7 @@
 // OSV (Open Source Vulnerabilities) API Adapter
 // Fetches security vulnerability signals from Google's OSV database
 
-import { Signal, Domain } from '@/types/signal';
+import { Signal, Category } from '@/types/signal';
 
 interface OSVVulnerability {
     id: string;
@@ -34,54 +34,48 @@ interface OSVQueryResponse {
     vulns: OSVVulnerability[];
 }
 
-// Ecosystem to domain mapping
-const ECOSYSTEM_DOMAINS: Record<string, Domain[]> = {
-    'npm': ['web'],
-    'PyPI': ['ai', 'data', 'web'],
-    'Go': ['devops', 'cloud'],
-    'crates.io': ['web', 'devops'],
-    'RubyGems': ['web'],
-    'Maven': ['web', 'data'],
-    'NuGet': ['web'],
-    'Packagist': ['web'],
-    'Hex': ['web'],
-    'Pub': ['mobile'],
-    'CocoaPods': ['mobile'],
-    'SwiftPM': ['mobile'],
-    'Linux': ['devops', 'security'],
-    'Debian': ['devops'],
-    'Alpine': ['devops', 'cloud'],
-    'OSS-Fuzz': ['security'],
+// Ecosystem to category mapping (primary category for the affected package)
+const ECOSYSTEM_CATEGORY: Record<string, Category> = {
+    'npm': 'Web',
+    'PyPI': 'AI',
+    'Go': 'Backend',
+    'crates.io': 'Backend',
+    'RubyGems': 'Web',
+    'Maven': 'Backend',
+    'NuGet': 'Backend',
+    'Packagist': 'Web',
+    'Hex': 'Backend',
+    'Pub': 'Mobile',
+    'CocoaPods': 'Mobile',
+    'SwiftPM': 'Mobile',
+    'Linux': 'DevOps',
+    'Debian': 'DevOps',
+    'Alpine': 'Cloud',
+    'OSS-Fuzz': 'Security',
 };
 
-// Priority packages to monitor (high-impact in their ecosystems)
+// Priority packages to monitor
 const PRIORITY_PACKAGES = [
-    // JavaScript/Node.js
     { ecosystem: 'npm', name: 'express' },
     { ecosystem: 'npm', name: 'lodash' },
     { ecosystem: 'npm', name: 'axios' },
     { ecosystem: 'npm', name: 'next' },
     { ecosystem: 'npm', name: 'react' },
-
-    // Python
     { ecosystem: 'PyPI', name: 'django' },
     { ecosystem: 'PyPI', name: 'flask' },
     { ecosystem: 'PyPI', name: 'requests' },
     { ecosystem: 'PyPI', name: 'numpy' },
     { ecosystem: 'PyPI', name: 'tensorflow' },
     { ecosystem: 'PyPI', name: 'pytorch' },
-
-    // Go
     { ecosystem: 'Go', name: 'github.com/gin-gonic/gin' },
     { ecosystem: 'Go', name: 'github.com/gorilla/mux' },
 ];
 
-// Get domains from ecosystem
-function getDomains(ecosystem: string): Domain[] {
-    return ECOSYSTEM_DOMAINS[ecosystem] || ['security'];
+// Get category from ecosystem — always Security since these are vulns
+function getCategory(ecosystem: string): Category {
+    return 'Security';
 }
 
-// Get severity label
 function getSeverityLabel(vuln: OSVVulnerability): string {
     if (!vuln.severity?.length) return 'Unknown severity';
 
@@ -97,7 +91,6 @@ function getSeverityLabel(vuln: OSVVulnerability): string {
     return 'Unknown severity';
 }
 
-// Format affected packages
 function formatAffected(vuln: OSVVulnerability): string {
     if (!vuln.affected?.length) return '';
 
@@ -109,19 +102,10 @@ function formatAffected(vuln: OSVVulnerability): string {
     return packages.length > 0 ? `Affects: ${packages.join(', ')}` : '';
 }
 
-// Get advisory URL
 function getAdvisoryUrl(vuln: OSVVulnerability): string {
     const advisory = vuln.references?.find(r => r.type === 'ADVISORY');
     if (advisory) return advisory.url;
-
-    // Default to OSV.dev page
     return `https://osv.dev/vulnerability/${vuln.id}`;
-}
-
-// Get fix/docs URL
-function getDocsUrl(vuln: OSVVulnerability): string | undefined {
-    const fix = vuln.references?.find(r => r.type === 'FIX' || r.type === 'PACKAGE');
-    return fix?.url;
 }
 
 // Query vulnerabilities for a specific package
@@ -133,7 +117,7 @@ async function queryPackage(ecosystem: string, name: string): Promise<OSVVulnera
             body: JSON.stringify({
                 package: { ecosystem, name }
             }),
-            next: { revalidate: 3600 } // Cache for 1 hour
+            next: { revalidate: 3600 }
         });
 
         if (!response.ok) {
@@ -157,7 +141,6 @@ export async function fetchOSVSignals(): Promise<Signal[]> {
         )
     );
 
-    // Dedupe by ID and filter to recent (last 30 days)
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
@@ -178,18 +161,27 @@ export async function fetchOSVSignals(): Promise<Signal[]> {
         const ecosystem = vuln.affected?.[0]?.package?.ecosystem || 'Unknown';
         const severity = getSeverityLabel(vuln);
         const affected = formatAffected(vuln);
+        const advisoryUrl = getAdvisoryUrl(vuln);
 
         return {
             id: `osv-${vuln.id}`,
-            signalType: 'security_fix' as const,
-            domains: [...getDomains(ecosystem), 'security'] as Domain[],
-            source: 'osv' as const,
-            sourceUrl: getAdvisoryUrl(vuln),
+            title: `${severity} Vulnerability: ${vuln.id}${vuln.aliases?.[0] ? ` (${vuln.aliases[0]})` : ''}`,
+            summary: `${vuln.summary || 'Security vulnerability discovered.'} ${affected}`.trim(),
+            whyItMatters: `${vuln.summary || 'Security vulnerability discovered.'} ${affected}`.trim(),
+            whoShouldCare: `Security teams, developers using affected packages (${ecosystem} ecosystem).`,
+            category: getCategory(ecosystem),
+            impactLabel: 'SecurityFix' as const,
+            importance: severity === 'Critical' ? 'Critical' as const : severity === 'High' ? 'Severe' as const : 'Important' as const,
+            entities: vuln.affected?.filter(a => a.package).map(a => a.package!.name).slice(0, 5) || [],
+            sourceType: 'osv' as const,
+            sourceName: 'OSV',
+            sourceUrl: advisoryUrl,
             publishedAt: vuln.published,
             fetchedAt: new Date().toISOString(),
-            whatChanged: `${severity} Vulnerability: ${vuln.id}${vuln.aliases?.[0] ? ` (${vuln.aliases[0]})` : ''}`,
-            whyItMatters: `${vuln.summary || 'Security vulnerability discovered.'} ${affected}`.trim(),
-            docsUrl: getDocsUrl(vuln),
+            citations: [
+                { url: advisoryUrl, title: 'Advisory' },
+                ...(vuln.references?.filter(r => r.type === 'FIX').map(r => ({ url: r.url, title: 'Fix' })) || []),
+            ],
         };
     });
 }

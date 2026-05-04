@@ -99,7 +99,7 @@ self.__SERVER_FILES_MANIFEST={
         "transform": "lodash/{{member}}"
       }
     },
-    "outputFileTracingRoot": "/Users/clawbrain/Desktop/project-tt",
+    "outputFileTracingRoot": "/Users/clawbrain/Desktop/project-tt/ProjectTT",
     "cacheComponents": false,
     "cacheLife": {
       "default": {
@@ -292,11 +292,11 @@ self.__SERVER_FILES_MANIFEST={
     "bundlePagesRouterDependencies": false,
     "configFileName": "next.config.ts",
     "turbopack": {
-      "root": "/Users/clawbrain/Desktop/project-tt"
+      "root": "/Users/clawbrain/Desktop/project-tt/ProjectTT"
     },
     "distDirRoot": ".next"
   },
-  "appDir": "/Users/clawbrain/Desktop/project-tt",
+  "appDir": "/Users/clawbrain/Desktop/project-tt/ProjectTT",
   "relativeAppDir": "",
   "files": [
     ".next/routes-manifest.json",

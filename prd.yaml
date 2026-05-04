@@ -1,0 +1,770 @@
+prd:
+  meta:
+    product_name: TokenTalks
+    prd_version: "v1.0"
+    status: Draft
+    owner: Mayank Tiwari
+    last_updated: "2026-03-07"
+    timezone: "Asia/Kolkata"
+    north_star:
+      statement: "Developers’ first instinct: Check TokenTalks when something changes/breaks in their stack."
+      core_promises:
+        - "High-signal, under-the-radar updates (Signals) with context."
+        - "Every Signal explains: What changed, Why it matters, Who should care."
+        - "Personalization via Your Stack + Followed Tags."
+        - "Trust via primary sources + citations; no unmarked speculation."
+    product_thesis:
+      problem: "Silent technical changes are fragmented across changelogs, releases, forums, and cloud notes; teams discover impact late."
+      solution: "A unified Signal intelligence feed that normalizes changes, enriches with context, and prioritizes what matters to the user’s stack."
+
+  positioning:
+    category: "Developer Signal Intelligence Platform"
+    not_a:
+      - "Generic tech news reader"
+      - "Vulnerability-only alerting (Snyk/Dependabot clone)"
+      - "Rumor feed mixed with verified updates"
+    differentiators:
+      - "Signal Standard (mandatory Why it matters + Who should care)"
+      - "Your Stack prioritization (manual or upload)"
+      - "High-signal default with optional 'More updates' depth"
+      - "Anticipated lane separate from verified Signals with evidence & confidence"
+    target_users:
+      - persona: "Backend Engineer"
+        jobs_to_be_done:
+          - "Know breaking changes before deploy."
+          - "Understand migration impact fast."
+      - persona: "AI Engineer"
+        jobs_to_be_done:
+          - "Track model/API changes, pricing, SDK updates."
+          - "See what affects my RAG stack (LangChain, vector DBs, etc.)."
+      - persona: "DevOps/SRE"
+        jobs_to_be_done:
+          - "Track cloud service changes/outages/perf/cost."
+      - persona: "PM/CTO/Founder"
+        jobs_to_be_done:
+          - "Understand ecosystem shifts impacting roadmap/infra cost."
+
+  mvp_scope:
+    in_scope:
+      - "Signals feed (Token Stream)"
+      - "Personalized feed (My Signals) after login"
+      - "Signal Standard v1 enforcement"
+      - "Stack Declaration (manual + upload) + 'Your Stack' tagging"
+      - "Save/Bookmark signals"
+      - "Follow tags/topics (basic)"
+      - "Auth: GitHub + LinkedIn priority; Google secondary"
+      - "User profile (stack, follows, saved, notification prefs)"
+      - "Anticipated lane (Rumour/Anticipated/Unconfirmed) separate from Signals"
+      - "Ingestion for initial sources (GitHub Releases, OSV, arXiv, Hacker News)"
+      - "Enrichment (hybrid: rules + LLM) with citations"
+      - "Refresh indicator ('Stream last flowed')"
+      - "Shareable signal (tweet text; image/OG card optional)"
+    out_of_scope_for_mvp:
+      - "Open community submissions / posting"
+      - "Token rewards economy"
+      - "IDE plugin"
+      - "Full multi-level editorial workflow"
+      - "Videos section"
+      - "Enterprise custom private sources"
+      - "Real-time X ingestion as a primary source of truth"
+    launch_success_criteria:
+      product:
+        - "≥ 70% of viewed Signals have 'Why it matters' that users find useful (proxy: save/share/scroll depth)."
+        - "My Signals increases return rate vs Token Stream-only users."
+      technical:
+        - "Ingestion jobs run reliably with dedupe; no duplicate spam."
+        - "Zero hallucinated claims without source evidence."
+
+  signal_standard:
+    definitions:
+      signal: "A verified, source-backed update that can change dev workflows or decisions."
+      anticipated_item: "Unconfirmed or pre-release information with evidence links and explicit uncertainty."
+    impact_labels:
+      - BreakingChange
+      - NewCapability
+      - SecurityFix
+      - CostChange
+      - PerformanceImprovement
+      - Silent
+    importance_levels:
+      - Critical
+      - Severe
+      - Important
+      - Normal
+      - Low
+    categories:
+      - AI
+      - DevOps
+      - Cloud
+      - Web
+      - Backend
+      - Data
+      - Mobile
+      - Security
+      - OpenSource
+      - Tools
+    required_fields:
+      signal:
+        - id
+        - title
+        - source_type
+        - source_name
+        - source_url
+        - category
+        - impact_label
+        - summary
+        - why_it_matters
+        - who_should_care
+        - published_at
+        - fetched_at
+        - citations
+      anticipated:
+        - id
+        - title
+        - status_badge
+        - confidence
+        - evidence_links
+        - why_it_matters
+        - who_should_care
+        - first_seen_at
+        - last_checked_at
+    citations_policy:
+      rules:
+        - "Every Signal claim must be grounded in source text/links."
+        - "Store evidence snippets or references where feasible."
+        - "No '100% correct' marketing without operational definition."
+      ui_requirements:
+        - "Always show primary source link."
+        - "Show evidence list (for Anticipated)."
+        - "Display confidence badge for Anticipated."
+
+  information_architecture:
+    primary_nav:
+      - TokenStream
+      - MySignals
+      - Anticipated
+      - Profile
+    secondary:
+      - Saved
+      - Following
+      - Settings
+      - Trust
+    pages:
+      - route: "/"
+        purpose: "Homepage + value prop + trust + signal standard."
+      - route: "/feed"
+        purpose: "Token Stream + My Signals tabs, filters, freshness."
+      - route: "/anticipated"
+        purpose: "Rumour/Anticipated lane with evidence + confidence."
+      - route: "/profile"
+        purpose: "User profile, stack declaration, follows, notification prefs."
+      - route: "/saved"
+        purpose: "Saved signals list."
+      - route: "/trust"
+        purpose: "Why Trust Us, sources policy, Signal Standard."
+
+  user_flows:
+    onboarding:
+      anonymous:
+        steps:
+          - "Land on /feed Token Stream"
+          - "Browse signals"
+          - "Attempt Save / Open MySignals triggers Login modal"
+      authenticated:
+        steps:
+          - "Login via modal (GitHub/LinkedIn/Google)"
+          - "Pick role (Dev/AI/DevOps/PM/Founder/Student)"
+          - "Optional: org (if Google)"
+          - "Stack Declaration (upload OR manual OR skip)"
+          - "Auto-curate My Signals; label items as 'Your Stack' where matched"
+    stack_declaration:
+      options:
+        - "Upload requirements.txt"
+        - "Upload package.json"
+        - "Manual add tags + optional versions"
+        - "Skip"
+      post_actions:
+        - "Compute stack entities"
+        - "Persist to user profile"
+        - "Re-rank My Signals"
+    anticipated_tracking:
+      steps:
+        - "User opens Anticipated"
+        - "Clicks Track on an item"
+        - "Receives notification when confirmed (future MVP+ optional)"
+        - "Item auto-promotes to Signal when verified"
+
+  functional_requirements:
+    feeds:
+      token_stream:
+        description: "Global feed of verified Signals."
+        default_mode: "HighSignal"
+        optional_depth:
+          - Balanced
+          - Everything
+        filters:
+          - category
+          - impact_label
+          - source_type
+          - importance
+          - time_range
+      my_signals:
+        description: "Personalized feed based on stack + follows + saves."
+        ranking_priority:
+          - "Your Stack matches"
+          - "Followed tags"
+          - "Recent high-importance signals"
+          - "General high-signal"
+        ui_tags:
+          - "Your Stack"
+          - "Following"
+          - "Saved"
+      freshness_indicator:
+        field: "last_flowed_at"
+        requirement: "Visible on feed header; updates when ingestion finishes."
+    authentication:
+      providers_priority:
+        - GitHub
+        - LinkedIn
+        - Google
+      google_secondary_prompt:
+        ask:
+          - "Are you a student or working professional?"
+          - "Organization (optional)"
+      login_modal_copy:
+        headline: "Unlock My Signals"
+        subcopy: "It’ll take less than you blink your eyes 5 times. Bet?"
+        benefits:
+          - "Your Stack feed"
+          - "Save & follow tags"
+          - "Breaking-change alerts"
+    profile:
+      fields:
+        - name
+        - handle
+        - role
+        - org_optional
+        - stack_entities
+        - followed_tags
+        - saved_signals
+        - notification_prefs
+    stack_matching:
+      inputs:
+        - "User stack entities (name, ecosystem, optional version)"
+        - "Signal extracted entities"
+      outputs:
+        - "match_score"
+        - "matched_entities"
+        - "your_stack_tag: true/false"
+      matching_rules:
+        - "Exact name match preferred"
+        - "Alias map (e.g., pydantic -> pydantic)"
+        - "Ecosystem alignment (python/node/cloud)"
+    save_bookmark:
+      requirement: "Saved signals must persist per user and be retrievable."
+    sharing:
+      requirement: "Generate tweet text with title + why_it_matters + source link."
+      optional: "Generate share image/OG card later."
+    anticipated_lane:
+      separation_rule: "Anticipated items NEVER appear in Signals feed by default."
+      statuses:
+        - Rumour
+        - Anticipated
+        - Unconfirmed
+      confidence:
+        - Low
+        - Medium
+        - High
+      evidence_types:
+        - "Official teaser/roadmap"
+        - "Maintainer comment"
+        - "GitHub issue/PR/RFC"
+        - "Forum announcement"
+        - "X post (unverified)"
+      promotion_to_signal:
+        criteria:
+          - "Official release note/changelog confirms"
+          - "GitHub release/tag exists"
+          - "Cloud provider release note confirms"
+        actions:
+          - "Create verified Signal"
+          - "Link back to anticipated item"
+          - "Notify trackers (if notifications enabled)"
+    notifications:
+      policy:
+        daily_cap: 5
+        bypass_importance:
+          - Critical
+          - Severe
+          - Important
+      triggers:
+        - "New Signal matches user stack and importance >= Important"
+        - "Confirmed promotion of tracked Anticipated item"
+      channels:
+        - "Email (MVP optional)"
+        - "Push (post-MVP unless already feasible)"
+
+  data_model:
+    entities:
+      User:
+        fields:
+          id: "string"
+          email: "string"
+          name: "string|null"
+          image: "string|null"
+          role: "enum|null"
+          org: "string|null"
+          createdAt: "datetime"
+      StackEntity:
+        fields:
+          id: "string"
+          userId: "string"
+          ecosystem: "enum(python|node|cloud|other)"
+          name: "string"
+          version: "string|null"
+          normalizedName: "string"
+          createdAt: "datetime"
+      Signal:
+        fields:
+          id: "string"
+          title: "string"
+          category: "enum"
+          impactLabel: "enum"
+          impactConfidence: "float(0-1)"
+          importance: "enum"
+          summary: "string"
+          whyItMatters: "string"
+          whoShouldCare: "string"
+          entities: "string[]"
+          sourceType: "enum(github|cloud|osv|arxiv|hn|vendor|other)"
+          sourceName: "string"
+          sourceUrl: "string"
+          publishedAt: "datetime"
+          fetchedAt: "datetime"
+          citations: "array"
+          rawEventId: "string|null"
+      RawEvent:
+        fields:
+          id: "string"
+          sourceType: "enum"
+          sourceUrl: "string"
+          sourceId: "string|null"
+          payload: "json"
+          fetchedAt: "datetime"
+          hash: "string"
+      SavedSignal:
+        fields:
+          id: "string"
+          userId: "string"
+          signalId: "string"
+          createdAt: "datetime"
+      FollowTag:
+        fields:
+          id: "string"
+          userId: "string"
+          tag: "string"
+          createdAt: "datetime"
+      AnticipatedItem:
+        fields:
+          id: "string"
+          title: "string"
+          status: "enum"
+          confidence: "enum"
+          evidenceLinks: "array"
+          whyItMatters: "string"
+          whoShouldCare: "string"
+          entities: "string[]"
+          firstSeenAt: "datetime"
+          lastCheckedAt: "datetime"
+          promotedSignalId: "string|null"
+      FeedMeta:
+        fields:
+          id: "singleton"
+          tokenStreamLastFlowedAt: "datetime"
+          ingestionLastRunAt: "datetime"
+
+  apis:
+    public:
+      - method: "GET"
+        path: "/api/signals"
+        query:
+          - category?
+          - impactLabel?
+          - importance?
+          - mode?(high|balanced|everything)
+          - cursor?
+          - limit?
+        returns: "Paginated Signal[] + FeedMeta"
+      - method: "GET"
+        path: "/api/anticipated"
+        query:
+          - status?
+          - confidence?
+          - cursor?
+          - limit?
+        returns: "Paginated AnticipatedItem[]"
+      - method: "GET"
+        path: "/api/meta"
+        returns: "FeedMeta"
+    auth_required:
+      - method: "GET"
+        path: "/api/me"
+        returns: "User + StackEntity[] + FollowTag[]"
+      - method: "POST"
+        path: "/api/stack/manual"
+        body: "StackEntityInput[]"
+        returns: "StackEntity[]"
+      - method: "POST"
+        path: "/api/stack/upload"
+        body: "file + ecosystem_hint"
+        returns: "StackEntity[]"
+      - method: "POST"
+        path: "/api/follows"
+        body: "tag"
+        returns: "FollowTag"
+      - method: "DELETE"
+        path: "/api/follows/:id"
+        returns: "ok"
+      - method: "POST"
+        path: "/api/saved/toggle"
+        body: "signalId"
+        returns: "SavedState"
+      - method: "GET"
+        path: "/api/my-signals"
+        query:
+          - cursor?
+          - limit?
+        returns: "Paginated Signal[] (ranked) + reasons"
+      - method: "POST"
+        path: "/api/anticipated/track"
+        body: "anticipatedId"
+        returns: "ok"
+
+  pipelines:
+    ingestion:
+      schedule:
+        github_releases: "hourly"
+        osv: "hourly"
+        arxiv: "every_3_hours"
+        hackernews: "hourly"
+      steps:
+        - "Fetch from source"
+        - "Store RawEvent (dedupe by hash)"
+        - "Normalize to candidate signal"
+        - "Filter noise (rules)"
+        - "Enrich (hybrid rules + LLM)"
+        - "Upsert Signal (dedupe by canonical key)"
+        - "Update FeedMeta.tokenStreamLastFlowedAt"
+    dedupe:
+      canonical_key:
+        - "sourceType + sourceUrl"
+        - "or sourceType + sourceId + publishedAt"
+      rules:
+        - "Prefer primary sources over re-shares"
+        - "Merge duplicates by updating citations list"
+    enrichment:
+      rule_first:
+        - "impactLabel from keywords (breaking, deprecated, security, pricing)"
+        - "importance from source + label + keywords"
+        - "entity extraction from titles/notes"
+      llm_second:
+        tasks:
+          - "summary"
+          - "why_it_matters"
+          - "who_should_care"
+          - "impact_label if low confidence"
+        constraints:
+          - "Must not add facts not present in source"
+          - "Return structured JSON only"
+          - "Include quoted evidence snippets where possible"
+      model_options:
+        primary: "Gemini Pro 3.1"
+        secondary: "Claude Opus 4.6"
+    anticipated_generation:
+      sources:
+        - "GitHub issues/PRs/RFCs"
+        - "Official roadmaps/forums"
+        - "Optional: X (unverified evidence type)"
+      steps:
+        - "Collect candidate hints"
+        - "Attach evidence links"
+        - "Assign confidence (Low/Medium/High)"
+        - "Never mark as verified"
+        - "Check periodically for confirmation"
+        - "Promote when confirmed"
+
+  non_functional_requirements:
+    scalability:
+      principles:
+        - "Global ingestion once; personalize via ranking, not per-user crawling."
+        - "Clear separation: ingestion workers vs request-serving APIs."
+        - "Use stable schemas/contracts; version when changing."
+    reliability:
+      - "Jobs must be idempotent."
+      - "Retry with backoff; track failures."
+      - "Observability: logs + metrics + ingestion run status."
+    performance_targets:
+      - "Feed API p95 < 500ms (cached paths where possible)."
+      - "My Signals ranking p95 < 700ms."
+    security_privacy:
+      - "Minimal data collection; stack files are parsed and discarded or stored securely per policy."
+      - "No secrets in repo; env-based config."
+    cost:
+      guidelines:
+        - "Rules-first enrichment to reduce LLM spend."
+        - "Batch enrichment calls."
+        - "Cache results; avoid re-enriching unchanged source events."
+
+  module_specs:
+    template:
+      Goal: ""
+      Constraints:
+        - ""
+      FileMap:
+        create: []
+        modify: []
+      Interfaces:
+        types: []
+        routes: []
+        events: []
+      EdgeCases: []
+      TestChecklist: []
+      OutputFormatRequirements:
+        - "No rambling; only requested artifacts."
+        - "Return code changes as diff-friendly blocks or file-by-file output."
+
+    modules:
+      - name: "M1_SignalStandard_v1"
+        Goal: "Define and enforce the canonical Signal & Anticipated schemas used across ingestion, storage, and UI."
+        Constraints:
+          - "Do not refactor UI components beyond type alignment."
+          - "Do not change existing routing structure unless necessary."
+        FileMap:
+          create:
+            - "src/lib/schemas/signal.ts"
+            - "src/lib/schemas/anticipated.ts"
+            - "src/lib/taxonomy.ts"
+          modify:
+            - "src/lib/types/* (if exists)"
+            - "src/app/(feed)/feed/*"
+        Interfaces:
+          types:
+            - "Signal"
+            - "AnticipatedItem"
+            - "ImpactLabel"
+            - "Importance"
+            - "Category"
+          routes: []
+          events: []
+        EdgeCases:
+          - "Missing summary/why fields must fail validation at ingestion time."
+        TestChecklist:
+          - "Schema validation tests for required fields."
+          - "UI renders all required fields without runtime errors."
+        OutputFormatRequirements:
+          - "Provide types + zod schemas (or equivalent) and examples."
+
+      - name: "M2_Persistence_DB_Prismav1"
+        Goal: "Add Postgres+Prisma persistence for users, signals, follows, saved, stack, anticipated."
+        Constraints:
+          - "Do not break current dev workflow (npm run dev)."
+        FileMap:
+          create:
+            - "prisma/schema.prisma"
+            - "src/lib/db/prisma.ts"
+            - "src/app/api/* (routes)"
+          modify:
+            - "src/app/* (feed data fetching to call DB-backed APIs)"
+        Interfaces:
+          types: ["DB models aligned with Signal Standard"]
+          routes:
+            - "/api/signals"
+            - "/api/my-signals"
+            - "/api/me"
+            - "/api/saved/toggle"
+            - "/api/follows"
+            - "/api/stack/manual"
+            - "/api/stack/upload"
+            - "/api/anticipated"
+            - "/api/anticipated/track"
+          events: []
+        EdgeCases:
+          - "Handle duplicate saves gracefully."
+          - "Cursor pagination for feeds."
+        TestChecklist:
+          - "Migrations apply cleanly."
+          - "CRUD routes return correct shapes."
+        OutputFormatRequirements:
+          - "Provide migration steps + env var list."
+
+      - name: "M3_Auth_LoginModal_Providers"
+        Goal: "Implement GitHub + LinkedIn + Google auth with interactive login modal and role/org prompts."
+        Constraints:
+          - "Keep provider priority order in UI."
+          - "Do not require login for Token Stream."
+        FileMap:
+          create:
+            - "src/components/auth/AuthGateModal.tsx"
+            - "src/components/auth/providers.ts"
+          modify:
+            - "src/app/api/auth/[...nextauth]/route.ts"
+            - "src/app/feed/* (gating actions)"
+        Interfaces:
+          types: ["UserRole", "AuthProvider"]
+          routes: ["/api/me"]
+          events: ["onAuthSuccess -> profile bootstrap"]
+        EdgeCases:
+          - "User closes modal; allow continue browsing."
+          - "Google sign-in requires role/org prompt."
+        TestChecklist:
+          - "Login works for each provider."
+          - "Attempt Save triggers modal when logged out."
+        OutputFormatRequirements:
+          - "Provide modal UX states + copy strings."
+
+      - name: "M4_Ingestion_Jobs_v1"
+        Goal: "Create scheduled ingestion jobs (GitHub/OSV/arXiv/HN) producing Signals into DB with dedupe + meta freshness."
+        Constraints:
+          - "Jobs must be idempotent."
+          - "No per-user crawling."
+        FileMap:
+          create:
+            - "src/jobs/*"
+            - "src/lib/ingestion/*"
+            - "src/app/api/jobs/run (protected)"
+          modify:
+            - "src/app/api/signals (serve stored data)"
+        Interfaces:
+          types: ["RawEvent", "IngestionRunResult"]
+          routes: ["/api/jobs/run?source=github"]
+          events: ["JobRun -> update FeedMeta.lastFlowedAt"]
+        EdgeCases:
+          - "Source rate limits"
+          - "Partial failures per source"
+        TestChecklist:
+          - "Dedupe works (no repeated inserts)."
+          - "FeedMeta updates after job."
+        OutputFormatRequirements:
+          - "Provide per-source connector + normalization steps."
+
+      - name: "M5_Enrichment_Hybrid_LLM_v1"
+        Goal: "Hybrid rules + LLM to fill summary/why/who/impact with citations; prevent hallucinations."
+        Constraints:
+          - "LLM must return strict JSON."
+          - "Must not add facts not present in sources."
+        FileMap:
+          create:
+            - "src/lib/enrichment/prompt.ts"
+            - "src/lib/enrichment/enricher.ts"
+            - "src/lib/enrichment/rules.ts"
+          modify:
+            - "src/jobs/* (call enricher)"
+        Interfaces:
+          types: ["EnrichmentInput", "EnrichmentOutput"]
+          routes: []
+          events: []
+        EdgeCases:
+          - "Empty or low-quality source text -> fallback to conservative output."
+        TestChecklist:
+          - "JSON parse always succeeds."
+          - "Citations always present."
+        OutputFormatRequirements:
+          - "Provide prompts for Gemini Pro 3.1 + Claude Opus 4.6."
+
+      - name: "M6_StackDeclaration_v1"
+        Goal: "Manual + upload parsing to build user stack entities, used for ranking and tagging 'Your Stack'."
+        Constraints:
+          - "Upload is optional; manual path must be smooth."
+        FileMap:
+          create:
+            - "src/lib/stack/parsers/requirements.ts"
+            - "src/lib/stack/parsers/packagejson.ts"
+            - "src/lib/stack/normalize.ts"
+          modify:
+            - "src/app/profile/stack/*"
+            - "src/app/api/stack/*"
+        Interfaces:
+          types: ["StackEntityInput", "StackEntity"]
+          routes:
+            - "/api/stack/upload"
+            - "/api/stack/manual"
+        EdgeCases:
+          - "Non-standard requirements formatting"
+          - "Monorepo package.json"
+        TestChecklist:
+          - "Parser extracts libs and versions."
+          - "My Signals prioritizes stack matches."
+        OutputFormatRequirements:
+          - "Provide parsing rules + alias mapping."
+
+      - name: "M7_Personalization_Ranking_v1"
+        Goal: "Rank My Signals based on stack matches, follows, importance, recency; attach ranking reasons."
+        Constraints:
+          - "Must be explainable ('Your Stack because...')."
+        FileMap:
+          create:
+            - "src/lib/ranking/mySignals.ts"
+          modify:
+            - "src/app/api/my-signals/route.ts"
+        Interfaces:
+          types: ["RankedSignal", "RankingReason"]
+          routes: ["/api/my-signals"]
+        EdgeCases:
+          - "User has no stack -> follow tags fallback"
+        TestChecklist:
+          - "Ranking stable + deterministic."
+        OutputFormatRequirements:
+          - "Provide scoring weights and reason strings."
+
+      - name: "M8_Anticipated_Lane_v0"
+        Goal: "Separate Anticipated feed with evidence, confidence, tracking, and promotion workflow."
+        Constraints:
+          - "Never mix Anticipated into verified Signals by default."
+        FileMap:
+          create:
+            - "src/lib/anticipated/*"
+            - "src/app/anticipated/*"
+            - "src/app/api/anticipated/*"
+          modify:
+            - "src/jobs/* (confirmation checks)"
+        Interfaces:
+          types: ["AnticipatedItem", "EvidenceLink"]
+          routes:
+            - "/api/anticipated"
+            - "/api/anticipated/track"
+        EdgeCases:
+          - "Disproven rumor -> mark as 'Invalidated' (optional)"
+        TestChecklist:
+          - "Evidence list always shown."
+          - "Promotion creates a verified Signal."
+        OutputFormatRequirements:
+          - "Provide confidence rubric + promotion criteria."
+
+      - name: "M9_Sharing_v0"
+        Goal: "Generate share text and optional OG image endpoint for Signals."
+        Constraints:
+          - "Keep MVP minimal: tweet text first."
+        FileMap:
+          create:
+            - "src/lib/share/tweet.ts"
+            - "src/app/api/share/tweet"
+          modify: []
+        Interfaces:
+          types: ["SharePayload"]
+          routes: ["/api/share/tweet?signalId=..."]
+        EdgeCases:
+          - "Character limit handling"
+        TestChecklist:
+          - "Output always includes link + concise why."
+        OutputFormatRequirements:
+          - "Provide deterministic formatting rules."
+
+  acceptance_tests:
+    end_to_end:
+      - "Anonymous user can browse Token Stream with filters and see freshness time."
+      - "Attempting Save or My Signals triggers login modal."
+      - "After login, user can set stack (upload/manual/skip) and see My Signals."
+      - "Signals show Title, Summary, Why it matters, Who should care, Source, Timestamp, Impact label."
+      - "Anticipated lane is separate and clearly marked with confidence + evidence."
+      - "Ingestion job runs and updates stream last flowed."
+      - "No duplicates in feed after repeated job runs."

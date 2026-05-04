@@ -1,35 +1,35 @@
 // GitHub Releases API Adapter
 // Fetches release signals from popular repositories
 
-import { Signal, SignalType, Domain } from '@/types/signal';
+import { Signal, Category, ImpactLabel } from '@/types/signal';
 
-// Key repositories to track - organized by domain
-const TRACKED_REPOS: Array<{ owner: string; repo: string; domains: Domain[] }> = [
+// Key repositories to track - organized by category
+const TRACKED_REPOS: Array<{ owner: string; repo: string; category: Category }> = [
     // AI/ML
-    { owner: 'openai', repo: 'openai-python', domains: ['ai'] },
-    { owner: 'langchain-ai', repo: 'langchain', domains: ['ai'] },
-    { owner: 'huggingface', repo: 'transformers', domains: ['ai', 'data'] },
-    { owner: 'anthropics', repo: 'anthropic-sdk-python', domains: ['ai'] },
+    { owner: 'openai', repo: 'openai-python', category: 'AI' },
+    { owner: 'langchain-ai', repo: 'langchain', category: 'AI' },
+    { owner: 'huggingface', repo: 'transformers', category: 'AI' },
+    { owner: 'anthropics', repo: 'anthropic-sdk-python', category: 'AI' },
 
     // Web/Frontend
-    { owner: 'vercel', repo: 'next.js', domains: ['web'] },
-    { owner: 'facebook', repo: 'react', domains: ['web'] },
-    { owner: 'sveltejs', repo: 'svelte', domains: ['web'] },
-    { owner: 'vuejs', repo: 'core', domains: ['web'] },
-    { owner: 'tailwindlabs', repo: 'tailwindcss', domains: ['web'] },
+    { owner: 'vercel', repo: 'next.js', category: 'Web' },
+    { owner: 'facebook', repo: 'react', category: 'Web' },
+    { owner: 'sveltejs', repo: 'svelte', category: 'Web' },
+    { owner: 'vuejs', repo: 'core', category: 'Web' },
+    { owner: 'tailwindlabs', repo: 'tailwindcss', category: 'Web' },
 
     // DevOps/Cloud
-    { owner: 'docker', repo: 'cli', domains: ['devops', 'cloud'] },
-    { owner: 'kubernetes', repo: 'kubernetes', domains: ['devops', 'cloud'] },
-    { owner: 'terraform-providers', repo: 'terraform-provider-aws', domains: ['cloud', 'devops'] },
+    { owner: 'docker', repo: 'cli', category: 'DevOps' },
+    { owner: 'kubernetes', repo: 'kubernetes', category: 'DevOps' },
+    { owner: 'terraform-providers', repo: 'terraform-provider-aws', category: 'Cloud' },
 
     // Data
-    { owner: 'apache', repo: 'spark', domains: ['data'] },
-    { owner: 'duckdb', repo: 'duckdb', domains: ['data'] },
+    { owner: 'apache', repo: 'spark', category: 'Data' },
+    { owner: 'duckdb', repo: 'duckdb', category: 'Data' },
 
     // Mobile
-    { owner: 'flutter', repo: 'flutter', domains: ['mobile'] },
-    { owner: 'facebook', repo: 'react-native', domains: ['mobile', 'web'] },
+    { owner: 'flutter', repo: 'flutter', category: 'Mobile' },
+    { owner: 'facebook', repo: 'react-native', category: 'Mobile' },
 ];
 
 interface GitHubRelease {
@@ -43,35 +43,34 @@ interface GitHubRelease {
     draft: boolean;
 }
 
-// Detect signal type from release content
-function detectSignalType(release: GitHubRelease): SignalType {
+// Detect impact label from release content
+function detectImpactLabel(release: GitHubRelease): ImpactLabel {
     const content = `${release.name} ${release.body}`.toLowerCase();
 
     if (content.includes('breaking') || content.includes('deprecat') || content.includes('removed')) {
-        return 'breaking_change';
+        return 'BreakingChange';
     }
     if (content.includes('security') || content.includes('cve') || content.includes('vulnerability')) {
-        return 'security_fix';
+        return 'SecurityFix';
     }
     if (content.includes('performance') || content.includes('faster') || content.includes('optimiz')) {
-        return 'performance';
+        return 'PerformanceImprovement';
     }
-    return 'new_capability';
+    return 'NewCapability';
 }
 
 // Extract a summary from release body
 function extractSummary(body: string, maxLength = 280): string {
     if (!body) return 'New release available. Check the release notes for details.';
 
-    // Clean up markdown
     let clean = body
-        .replace(/#{1,6}\s*/g, '')           // Remove headers
-        .replace(/\*\*([^*]+)\*\*/g, '$1')   // Remove bold
-        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Keep link text only
-        .replace(/```[\s\S]*?```/g, '')      // Remove code blocks
-        .replace(/`[^`]+`/g, '')             // Remove inline code
-        .replace(/^\s*[-*]\s*/gm, '• ')      // Normalize bullets
-        .replace(/\n{2,}/g, ' ')             // Collapse newlines
+        .replace(/#{1,6}\s*/g, '')
+        .replace(/\*\*([^*]+)\*\*/g, '$1')
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+        .replace(/```[\s\S]*?```/g, '')
+        .replace(/`[^`]+`/g, '')
+        .replace(/^\s*[-*]\s*/gm, '• ')
+        .replace(/\n{2,}/g, ' ')
         .trim();
 
     if (clean.length > maxLength) {
@@ -85,7 +84,7 @@ function extractSummary(body: string, maxLength = 280): string {
 async function fetchRepoReleases(
     owner: string,
     repo: string,
-    domains: Domain[]
+    category: Category
 ): Promise<Signal[]> {
     try {
         const response = await fetch(
@@ -94,9 +93,8 @@ async function fetchRepoReleases(
                 headers: {
                     'Accept': 'application/vnd.github+json',
                     'X-GitHub-Api-Version': '2022-11-28',
-                    // Note: Add auth token in production for higher rate limits
                 },
-                next: { revalidate: 3600 } // Cache for 1 hour
+                next: { revalidate: 3600 }
             }
         );
 
@@ -111,16 +109,22 @@ async function fetchRepoReleases(
             .filter(r => !r.draft && !r.prerelease)
             .map(release => ({
                 id: `github-${owner}-${repo}-${release.id}`,
-                signalType: detectSignalType(release),
-                domains,
-                source: 'github' as const,
+                title: `${repo} ${release.tag_name}${release.name && release.name !== release.tag_name ? `: ${release.name}` : ''}`,
+                summary: extractSummary(release.body),
+                whyItMatters: extractSummary(release.body),
+                whoShouldCare: `Developers using ${repo} in production.`,
+                category,
+                impactLabel: detectImpactLabel(release),
+                importance: 'Normal' as const,
+                entities: [repo],
+                sourceType: 'github' as const,
+                sourceName: 'GitHub',
                 sourceUrl: release.html_url,
                 publishedAt: release.published_at,
                 fetchedAt: new Date().toISOString(),
-                whatChanged: `${repo} ${release.tag_name}${release.name && release.name !== release.tag_name ? `: ${release.name}` : ''}`,
-                whyItMatters: extractSummary(release.body),
-                repoUrl: `https://github.com/${owner}/${repo}`,
-                docsUrl: `https://github.com/${owner}/${repo}/releases/tag/${release.tag_name}`,
+                citations: [
+                    { url: release.html_url, title: 'Release Notes' },
+                ],
             }));
     } catch (error) {
         console.error(`Error fetching releases for ${owner}/${repo}:`, error);
@@ -131,12 +135,11 @@ async function fetchRepoReleases(
 // Fetch all tracked GitHub releases
 export async function fetchGitHubReleases(): Promise<Signal[]> {
     const allReleases = await Promise.all(
-        TRACKED_REPOS.map(({ owner, repo, domains }) =>
-            fetchRepoReleases(owner, repo, domains)
+        TRACKED_REPOS.map(({ owner, repo, category }) =>
+            fetchRepoReleases(owner, repo, category)
         )
     );
 
-    // Flatten and sort by date
     return allReleases
         .flat()
         .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());

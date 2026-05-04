@@ -1,7 +1,7 @@
 // arXiv API Adapter
 // Fetches recent CS/AI research papers from arXiv
 
-import { Signal, Domain } from '@/types/signal';
+import { Signal, Category } from '@/types/signal';
 
 interface ArxivEntry {
     id: string;
@@ -15,27 +15,26 @@ interface ArxivEntry {
     absUrl: string;
 }
 
-// Category to domain mapping
-const CATEGORY_DOMAINS: Record<string, Domain[]> = {
-    'cs.AI': ['ai'],
-    'cs.LG': ['ai', 'data'],
-    'cs.CL': ['ai'],                    // Computation and Language
-    'cs.CV': ['ai'],                    // Computer Vision
-    'cs.NE': ['ai'],                    // Neural and Evolutionary Computing
-    'cs.CR': ['security'],              // Cryptography and Security
-    'cs.DB': ['data'],                  // Databases
-    'cs.DC': ['cloud', 'devops'],       // Distributed Computing
-    'cs.SE': ['web', 'devops'],         // Software Engineering
-    'cs.PL': ['web'],                   // Programming Languages
-    'cs.HC': ['web', 'mobile'],         // Human-Computer Interaction
-    'stat.ML': ['ai', 'data'],          // Machine Learning (Statistics)
+// arXiv category to Category mapping
+const ARXIV_CATEGORY_MAP: Record<string, Category> = {
+    'cs.AI': 'AI',
+    'cs.LG': 'AI',
+    'cs.CL': 'AI',
+    'cs.CV': 'AI',
+    'cs.NE': 'AI',
+    'cs.CR': 'Security',
+    'cs.DB': 'Data',
+    'cs.DC': 'Cloud',
+    'cs.SE': 'Backend',
+    'cs.PL': 'Web',
+    'cs.HC': 'Web',
+    'stat.ML': 'AI',
 };
 
 // Parse arXiv Atom feed
 function parseArxivFeed(xml: string): ArxivEntry[] {
     const entries: ArxivEntry[] = [];
 
-    // Simple regex-based parsing (works for server-side)
     const entryRegex = /<entry>([\s\S]*?)<\/entry>/g;
     let match;
 
@@ -48,7 +47,6 @@ function parseArxivFeed(xml: string): ArxivEntry[] {
         const getPublished = (str: string) => str.match(/<published>([^<]+)<\/published>/)?.[1] || '';
         const getUpdated = (str: string) => str.match(/<updated>([^<]+)<\/updated>/)?.[1] || '';
 
-        // Get authors
         const authorRegex = /<author>\s*<name>([^<]+)<\/name>/g;
         const authors: string[] = [];
         let authorMatch;
@@ -56,7 +54,6 @@ function parseArxivFeed(xml: string): ArxivEntry[] {
             authors.push(authorMatch[1]);
         }
 
-        // Get categories
         const categoryRegex = /category[^>]*term="([^"]+)"/g;
         const categories: string[] = [];
         let catMatch;
@@ -64,7 +61,6 @@ function parseArxivFeed(xml: string): ArxivEntry[] {
             categories.push(catMatch[1]);
         }
 
-        // Get PDF link
         const pdfMatch = entry.match(/link[^>]*href="([^"]*\/pdf\/[^"]+)"/);
         const absMatch = entry.match(/link[^>]*href="([^"]*\/abs\/[^"]+)"/);
 
@@ -87,18 +83,13 @@ function parseArxivFeed(xml: string): ArxivEntry[] {
     return entries;
 }
 
-// Determine domains from arXiv categories
-function getDomains(categories: string[]): Domain[] {
-    const domains = new Set<Domain>();
-
+// Determine primary category from arXiv categories
+function getCategory(categories: string[]): Category {
     for (const cat of categories) {
-        const mapped = CATEGORY_DOMAINS[cat];
-        if (mapped) {
-            mapped.forEach(d => domains.add(d));
-        }
+        const mapped = ARXIV_CATEGORY_MAP[cat];
+        if (mapped) return mapped;
     }
-
-    return domains.size > 0 ? Array.from(domains) : ['ai'];
+    return 'AI'; // default for arXiv
 }
 
 // Truncate summary
@@ -118,7 +109,7 @@ async function fetchCategory(category: string, maxResults = 10): Promise<ArxivEn
         url.searchParams.set('sortOrder', 'descending');
 
         const response = await fetch(url.toString(), {
-            next: { revalidate: 3600 } // Cache for 1 hour
+            next: { revalidate: 3600 }
         });
 
         if (!response.ok) {
@@ -152,16 +143,23 @@ export async function fetchArxivSignals(): Promise<Signal[]> {
 
     return papers.map(paper => ({
         id: `arxiv-${paper.id}`,
-        signalType: 'research' as const,
-        domains: getDomains(paper.categories),
-        source: 'arxiv' as const,
+        title: paper.title,
+        summary: truncateSummary(paper.summary),
+        whyItMatters: truncateSummary(paper.summary),
+        whoShouldCare: `AI researchers and ML engineers. Authors: ${paper.authors.slice(0, 3).join(', ')}${paper.authors.length > 3 ? ' et al.' : ''}.`,
+        category: getCategory(paper.categories),
+        impactLabel: 'NewCapability' as const,
+        importance: 'Normal' as const,
+        entities: [],
+        sourceType: 'arxiv' as const,
+        sourceName: 'arXiv',
         sourceUrl: paper.absUrl,
         publishedAt: paper.published,
         fetchedAt: new Date().toISOString(),
-        whatChanged: paper.title,
-        whyItMatters: truncateSummary(paper.summary),
-        paperUrl: paper.pdfUrl,
-        whoShouldCare: paper.authors.slice(0, 3),
+        citations: [
+            { url: paper.absUrl, title: 'Paper' },
+            { url: paper.pdfUrl, title: 'PDF' },
+        ],
     }));
 }
 

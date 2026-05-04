@@ -1,16 +1,152 @@
-[00:00:01.386] Server  WARN    ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
-[00:00:01.444] Server  LOG     ✓ Ready in 1295ms
-[00:00:03.635] Server  ERROR   `legacyBehavior` is deprecated and will be removed in a future release. A codemod is available to upgrade your components:
+[00:00:00.886] Server  WARN    ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+[00:00:00.943] Server  LOG     ✓ Ready in 790ms
+[00:00:09.290] Server  ERROR   `legacyBehavior` is deprecated and will be removed in a future release. A codemod is available to upgrade your components:
 
 npx @next/codemod@latest new-link .
 
 Learn more: https://nextjs.org/docs/app/building-your-application/upgrading/codemods#remove-a-tags-from-link-components
-[00:00:03.827] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:03.981] Browser ERROR   `legacyBehavior` is deprecated and will be removed in a future release. A codemod is available to upgrade your components:
+[00:00:09.475] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:09.642] Browser ERROR   `legacyBehavior` is deprecated and will be removed in a future release. A codemod is available to upgrade your components:
 
 npx @next/codemod@latest new-link .
 
 Learn more: https://nextjs.org/docs/app/building-your-application/upgrading/codemods#remove-a-tags-from-link-components
-[00:00:03.981] Browser WARN    Please ensure that the container has a non-static position, like 'relative', 'fixed', or 'absolute' to ensure scroll offset is calculated correctly.
-[00:00:04.346] Server  WARN    [next-auth][warn][NEXTAUTH_URL] "\nhttps://next-auth.js.org/warnings#nextauth_url"
-[00:00:04.347] Server  WARN    [next-auth][warn][NO_SECRET] "\nhttps://next-auth.js.org/warnings#no_secret"
+[00:00:09.642] Browser WARN    Please ensure that the container has a non-static position, like 'relative', 'fixed', or 'absolute' to ensure scroll offset is calculated correctly.
+[00:00:10.029] Server  WARN    [next-auth][warn][NEXTAUTH_URL] "\nhttps://next-auth.js.org/warnings#nextauth_url"
+[00:00:10.029] Server  WARN    [next-auth][warn][NO_SECRET] "\nhttps://next-auth.js.org/warnings#no_secret"
+[00:03:32.135] Server  LOG     prisma:error "\nInvalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__[\"prisma\"].signal.findMany()` invocation in\n/Users/clawbrain/Desktop/project-tt/ProjectTT/.next/dev/server/chunks/[root-of-the-server]__04a392bc._.js:91:169\n\n  88 if (category) where.category = category;\n  89 if (impactLabel) where.impactLabel = impactLabel;\n  90 if (importance) where.importance = importance;\n→ 91 const signals = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__[\"prisma\"].signal.findMany(\nerror: Environment variable not found: DATABASE_URL.\n  -->  schema.prisma:12\n   | \n11 |   provider = \"postgresql\"\n12 |   url      = env(\"DATABASE_URL\")\n   | \n\nValidation Error Count: 1"
+[00:03:32.135] Server  LOG     prisma:error "\nInvalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__[\"prisma\"].feedMeta.upsert()` invocation in\n/Users/clawbrain/Desktop/project-tt/ProjectTT/.next/dev/server/chunks/[root-of-the-server]__a3c72639._.js:82:168\n\n  79 ;\n  80 async function GET() {\n  81     // Upsert the singleton — ensures it always exists\n→ 82     const meta = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__[\"prisma\"].feedMeta.upsert(\nerror: Environment variable not found: DATABASE_URL.\n  -->  schema.prisma:12\n   | \n11 |   provider = \"postgresql\"\n12 |   url      = env(\"DATABASE_URL\")\n   | \n\nValidation Error Count: 1"
+[00:03:32.206] Server  ERROR   ⨯ PrismaClientInitializationError: 
+Invalid `{imported module ./src/lib/db/prisma.ts}["prisma"].signal.findMany()` invocation in
+/Users/clawbrain/Desktop/project-tt/ProjectTT/.next/dev/server/chunks/[root-of-the-server]__04a392bc._.js:91:169
+
+  88 if (category) where.category = category;
+  89 if (impactLabel) where.impactLabel = impactLabel;
+  90 if (importance) where.importance = importance;
+→ 91 const signals = await {imported module ./src/lib/db/prisma.ts}["prisma"].signal.findMany(
+error: Environment variable not found: DATABASE_URL.
+  -->  schema.prisma:12
+   | 
+11 |   provider = "postgresql"
+12 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+[00:03:32.238] Server  ERROR   ⨯ PrismaClientInitializationError: 
+Invalid `{imported module ./src/lib/db/prisma.ts}["prisma"].feedMeta.upsert()` invocation in
+/Users/clawbrain/Desktop/project-tt/ProjectTT/.next/dev/server/chunks/[root-of-the-server]__a3c72639._.js:82:168
+
+  79 ;
+  80 async function GET() {
+  81     // Upsert the singleton — ensures it always exists
+→ 82     const meta = await {imported module ./src/lib/db/prisma.ts}["prisma"].feedMeta.upsert(
+error: Environment variable not found: DATABASE_URL.
+  -->  schema.prisma:12
+   | 
+11 |   provider = "postgresql"
+12 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+[00:03:33.263] Server  LOG     prisma:error "\nInvalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__[\"prisma\"].signal.findMany()` invocation in\n/Users/clawbrain/Desktop/project-tt/ProjectTT/.next/dev/server/chunks/[root-of-the-server]__04a392bc._.js:91:169\n\n  88 if (category) where.category = category;\n  89 if (impactLabel) where.impactLabel = impactLabel;\n  90 if (importance) where.importance = importance;\n→ 91 const signals = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__[\"prisma\"].signal.findMany(\nerror: Environment variable not found: DATABASE_URL.\n  -->  schema.prisma:12\n   | \n11 |   provider = \"postgresql\"\n12 |   url      = env(\"DATABASE_URL\")\n   | \n\nValidation Error Count: 1"
+[00:03:33.264] Server  LOG     prisma:error "\nInvalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__[\"prisma\"].feedMeta.upsert()` invocation in\n/Users/clawbrain/Desktop/project-tt/ProjectTT/.next/dev/server/chunks/[root-of-the-server]__a3c72639._.js:82:168\n\n  79 ;\n  80 async function GET() {\n  81     // Upsert the singleton — ensures it always exists\n→ 82     const meta = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__[\"prisma\"].feedMeta.upsert(\nerror: Environment variable not found: DATABASE_URL.\n  -->  schema.prisma:12\n   | \n11 |   provider = \"postgresql\"\n12 |   url      = env(\"DATABASE_URL\")\n   | \n\nValidation Error Count: 1"
+[00:03:33.307] Server  ERROR   ⨯ PrismaClientInitializationError: 
+Invalid `{imported module ./src/lib/db/prisma.ts}["prisma"].signal.findMany()` invocation in
+/Users/clawbrain/Desktop/project-tt/ProjectTT/.next/dev/server/chunks/[root-of-the-server]__04a392bc._.js:91:169
+
+  88 if (category) where.category = category;
+  89 if (impactLabel) where.impactLabel = impactLabel;
+  90 if (importance) where.importance = importance;
+→ 91 const signals = await {imported module ./src/lib/db/prisma.ts}["prisma"].signal.findMany(
+error: Environment variable not found: DATABASE_URL.
+  -->  schema.prisma:12
+   | 
+11 |   provider = "postgresql"
+12 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+[00:03:33.334] Server  ERROR   ⨯ PrismaClientInitializationError: 
+Invalid `{imported module ./src/lib/db/prisma.ts}["prisma"].feedMeta.upsert()` invocation in
+/Users/clawbrain/Desktop/project-tt/ProjectTT/.next/dev/server/chunks/[root-of-the-server]__a3c72639._.js:82:168
+
+  79 ;
+  80 async function GET() {
+  81     // Upsert the singleton — ensures it always exists
+→ 82     const meta = await {imported module ./src/lib/db/prisma.ts}["prisma"].feedMeta.upsert(
+error: Environment variable not found: DATABASE_URL.
+  -->  schema.prisma:12
+   | 
+11 |   provider = "postgresql"
+12 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+[00:03:35.358] Server  LOG     prisma:error "\nInvalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__[\"prisma\"].signal.findMany()` invocation in\n/Users/clawbrain/Desktop/project-tt/ProjectTT/.next/dev/server/chunks/[root-of-the-server]__04a392bc._.js:91:169\n\n  88 if (category) where.category = category;\n  89 if (impactLabel) where.impactLabel = impactLabel;\n  90 if (importance) where.importance = importance;\n→ 91 const signals = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__[\"prisma\"].signal.findMany(\nerror: Environment variable not found: DATABASE_URL.\n  -->  schema.prisma:12\n   | \n11 |   provider = \"postgresql\"\n12 |   url      = env(\"DATABASE_URL\")\n   | \n\nValidation Error Count: 1"
+[00:03:35.359] Server  LOG     prisma:error "\nInvalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__[\"prisma\"].feedMeta.upsert()` invocation in\n/Users/clawbrain/Desktop/project-tt/ProjectTT/.next/dev/server/chunks/[root-of-the-server]__a3c72639._.js:82:168\n\n  79 ;\n  80 async function GET() {\n  81     // Upsert the singleton — ensures it always exists\n→ 82     const meta = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__[\"prisma\"].feedMeta.upsert(\nerror: Environment variable not found: DATABASE_URL.\n  -->  schema.prisma:12\n   | \n11 |   provider = \"postgresql\"\n12 |   url      = env(\"DATABASE_URL\")\n   | \n\nValidation Error Count: 1"
+[00:03:35.401] Server  ERROR   ⨯ PrismaClientInitializationError: 
+Invalid `{imported module ./src/lib/db/prisma.ts}["prisma"].signal.findMany()` invocation in
+/Users/clawbrain/Desktop/project-tt/ProjectTT/.next/dev/server/chunks/[root-of-the-server]__04a392bc._.js:91:169
+
+  88 if (category) where.category = category;
+  89 if (impactLabel) where.impactLabel = impactLabel;
+  90 if (importance) where.importance = importance;
+→ 91 const signals = await {imported module ./src/lib/db/prisma.ts}["prisma"].signal.findMany(
+error: Environment variable not found: DATABASE_URL.
+  -->  schema.prisma:12
+   | 
+11 |   provider = "postgresql"
+12 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+[00:03:35.431] Server  ERROR   ⨯ PrismaClientInitializationError: 
+Invalid `{imported module ./src/lib/db/prisma.ts}["prisma"].feedMeta.upsert()` invocation in
+/Users/clawbrain/Desktop/project-tt/ProjectTT/.next/dev/server/chunks/[root-of-the-server]__a3c72639._.js:82:168
+
+  79 ;
+  80 async function GET() {
+  81     // Upsert the singleton — ensures it always exists
+→ 82     const meta = await {imported module ./src/lib/db/prisma.ts}["prisma"].feedMeta.upsert(
+error: Environment variable not found: DATABASE_URL.
+  -->  schema.prisma:12
+   | 
+11 |   provider = "postgresql"
+12 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+[00:04:30.572] Server  LOG     prisma:error "\nInvalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__[\"prisma\"].feedMeta.upsert()` invocation in\n/Users/clawbrain/Desktop/project-tt/ProjectTT/.next/dev/server/chunks/[root-of-the-server]__a3c72639._.js:82:168\n\n  79 ;\n  80 async function GET() {\n  81     // Upsert the singleton — ensures it always exists\n→ 82     const meta = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__[\"prisma\"].feedMeta.upsert(\nerror: Environment variable not found: DATABASE_URL.\n  -->  schema.prisma:12\n   | \n11 |   provider = \"postgresql\"\n12 |   url      = env(\"DATABASE_URL\")\n   | \n\nValidation Error Count: 1"
+[00:04:30.573] Server  LOG     prisma:error "\nInvalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__[\"prisma\"].signal.findMany()` invocation in\n/Users/clawbrain/Desktop/project-tt/ProjectTT/.next/dev/server/chunks/[root-of-the-server]__04a392bc._.js:91:169\n\n  88 if (category) where.category = category;\n  89 if (impactLabel) where.impactLabel = impactLabel;\n  90 if (importance) where.importance = importance;\n→ 91 const signals = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__[\"prisma\"].signal.findMany(\nerror: Environment variable not found: DATABASE_URL.\n  -->  schema.prisma:12\n   | \n11 |   provider = \"postgresql\"\n12 |   url      = env(\"DATABASE_URL\")\n   | \n\nValidation Error Count: 1"
+[00:04:30.624] Server  ERROR   ⨯ PrismaClientInitializationError: 
+Invalid `{imported module ./src/lib/db/prisma.ts}["prisma"].feedMeta.upsert()` invocation in
+/Users/clawbrain/Desktop/project-tt/ProjectTT/.next/dev/server/chunks/[root-of-the-server]__a3c72639._.js:82:168
+
+  79 ;
+  80 async function GET() {
+  81     // Upsert the singleton — ensures it always exists
+→ 82     const meta = await {imported module ./src/lib/db/prisma.ts}["prisma"].feedMeta.upsert(
+error: Environment variable not found: DATABASE_URL.
+  -->  schema.prisma:12
+   | 
+11 |   provider = "postgresql"
+12 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+[00:04:30.660] Server  ERROR   ⨯ PrismaClientInitializationError: 
+Invalid `{imported module ./src/lib/db/prisma.ts}["prisma"].signal.findMany()` invocation in
+/Users/clawbrain/Desktop/project-tt/ProjectTT/.next/dev/server/chunks/[root-of-the-server]__04a392bc._.js:91:169
+
+  88 if (category) where.category = category;
+  89 if (impactLabel) where.impactLabel = impactLabel;
+  90 if (importance) where.importance = importance;
+→ 91 const signals = await {imported module ./src/lib/db/prisma.ts}["prisma"].signal.findMany(
+error: Environment variable not found: DATABASE_URL.
+  -->  schema.prisma:12
+   | 
+11 |   provider = "postgresql"
+12 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
