@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { inngest } from "@/inngest/client";
 import { ArxivConnector } from "@/lib/ingestion/connectors/arxiv";
 import { enrich } from "@/lib/enrichment/pipeline";
@@ -24,6 +25,7 @@ export const ingestArxivFn = inngest.createFunction(
         await recordSuccess(sourceKey, "arxiv", count);
         return { signals: count, skipped: false };
       } catch (err) {
+        Sentry.captureException(err);
         await recordFailure(sourceKey, "arxiv", err as Error);
         throw err;
       }

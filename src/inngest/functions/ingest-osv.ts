@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { inngest } from "@/inngest/client";
 import { OsvConnector } from "@/lib/ingestion/connectors/osv";
 import { enrich } from "@/lib/enrichment/pipeline";
@@ -24,6 +25,7 @@ export const ingestOsvFn = inngest.createFunction(
         await recordSuccess(sourceKey, "osv", count);
         return { signals: count, skipped: false };
       } catch (err) {
+        Sentry.captureException(err);
         await recordFailure(sourceKey, "osv", err as Error);
         throw err;
       }

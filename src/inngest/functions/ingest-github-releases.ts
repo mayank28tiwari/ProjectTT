@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { inngest } from "@/inngest/client";
 import { GITHUB_REPOS } from "@/lib/sources/github-repos";
 import { GithubReleasesConnector } from "@/lib/ingestion/connectors/github-releases";
@@ -28,6 +29,7 @@ export const ingestGithubReleasesFn = inngest.createFunction(
           await recordSuccess(sourceKey, "github_release", count);
           return { signals: count, skipped: false };
         } catch (err) {
+          Sentry.captureException(err);
           await recordFailure(sourceKey, "github_release", err as Error);
           throw err;
         }

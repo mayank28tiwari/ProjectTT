@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { inngest } from "@/inngest/client";
 import { GhsaConnector } from "@/lib/ingestion/connectors/ghsa";
 import { enrich } from "@/lib/enrichment/pipeline";
@@ -25,6 +26,7 @@ export const ingestGhsaFn = inngest.createFunction(
         await recordSuccess(sourceKey, "github_advisory", count);
         return { signals: count, skipped: false };
       } catch (err) {
+        Sentry.captureException(err);
         await recordFailure(sourceKey, "github_advisory", err as Error);
         throw err;
       }

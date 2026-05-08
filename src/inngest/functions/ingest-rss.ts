@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { inngest } from "@/inngest/client";
 import { RSS_FEEDS } from "@/lib/sources/rss-feeds";
 import { RssConnector } from "@/lib/ingestion/connectors/rss";
@@ -27,6 +28,7 @@ export const ingestRssFn = inngest.createFunction(
           await recordSuccess(sourceKey, "rss", count);
           return { signals: count, skipped: false };
         } catch (err) {
+          Sentry.captureException(err);
           await recordFailure(sourceKey, "rss", err as Error);
           throw err;
         }

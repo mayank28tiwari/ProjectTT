@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db/prisma";
 import { Prisma, Category, ImpactLabel, Importance } from "@prisma/client";
 import { getRedis } from "@/lib/redis";
 import { createHash } from "crypto";
+import * as Sentry from "@sentry/nextjs";
 import { generateMockSignals } from "@/lib/api/signals";
 
 const DEFAULT_LIMIT = 30;
@@ -106,6 +107,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(body);
   } catch (error) {
+    Sentry.captureException(error);
     console.error("Failed to fetch signals:", error);
     return NextResponse.json({ error: "Failed to fetch signals" }, { status: 500 });
   }
