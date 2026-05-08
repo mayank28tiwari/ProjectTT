@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Link from "next/link";
+import { Providers } from "@/components/providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,11 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TokenTalks | Tech in bytes",
-  description: "A single feed for AI, dev, cloud, and everything tech — summarized, tagged, swipeable.",
+  title: "TokenTalks — Know before it breaks.",
+  description: "Developer signal intelligence: releases, advisories, papers — curated and enriched.",
 };
-
-import { Providers } from "@/components/providers";
 
 export default function RootLayout({
   children,
@@ -25,12 +25,24 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <html lang="en">
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-zinc-950 text-zinc-100`}>
         <Providers>
-          {children}
+          <header className="border-b border-zinc-800">
+            <div className="mx-auto max-w-[1200px] px-4 py-3 flex items-center justify-between">
+              <Link href="/" className="font-semibold text-lg tracking-tight text-zinc-100">
+                TokenTalks
+              </Link>
+              <nav>
+                <Link href="/feed" className="text-sm text-zinc-400 hover:text-zinc-100 transition-colors">
+                  Feed
+                </Link>
+              </nav>
+            </div>
+          </header>
+          <main className="mx-auto max-w-[1200px] px-4 py-8">
+            {children}
+          </main>
         </Providers>
       </body>
     </html>
