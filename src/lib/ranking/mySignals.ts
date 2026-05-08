@@ -1,4 +1,7 @@
-import type { SavedSignal, FollowTag, StackEntity } from "@prisma/client";
+// Phase 2 personalization ranking — types stubbed for Phase 1 build compatibility
+type SavedSignal = { signalId: string };
+type FollowTag = { tag: string };
+type StackEntity = { name: string; normalizedName: string };
 import { Signal } from "@/types/signal";
 
 export interface RankedSignal extends Signal {

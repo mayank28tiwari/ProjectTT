@@ -1,196 +1,131 @@
-// ─────────────────────────────────────────────────────
-// Prisma Schema — TokenTalks data model
-// Aligned with PRD v1 data_model + NextAuth adapter
-// ─────────────────────────────────────────────────────
-
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  directUrl  = env("DATABASE_URL_UNPOOLED")
+  extensions = [pgvector(map: "vector")]
 }
 
-// ── NextAuth Models ──────────────────────────────────
-
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
+enum SourceType {
+  github_release
+  github_advisory
+  rss
+  arxiv
+  hackernews
+  osv
 }
 
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+enum Category {
+  AI
+  DevOps
+  Cloud
+  Web
+  Backend
+  Data
+  Mobile
+  Security
+  OpenSource
+  Tools
+  Research
 }
 
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
+enum ImpactLabel {
+  BreakingChange
+  NewCapability
+  SecurityFix
+  CostChange
+  PerformanceImprovement
+  DeveloperExperience
+  Deprecation
+  Silent
 }
 
-// ── User ─────────────────────────────────────────────
-
-model User {
-  id            String    @id @default(cuid())
-  email         String?   @unique
-  emailVerified DateTime?
-  name          String?
-  image         String?
-  role          String?   // Dev, AI, DevOps, PM, Founder, Student
-  org           String?
-  createdAt     DateTime  @default(now())
-
-  accounts      Account[]
-  sessions      Session[]
-  savedSignals  SavedSignal[]
-  followedTags  FollowTag[]
-  stackEntities StackEntity[]
-  trackedItems  TrackedAnticipated[]
+enum Importance {
+  Critical
+  Severe
+  Important
+  Normal
+  Low
 }
 
-// ── Signal ───────────────────────────────────────────
-
-model Signal {
-  id               String   @id @default(cuid())
-  title            String
-  summary          String   @db.Text
-  whyItMatters     String   @db.Text
-  whoShouldCare    String   @db.Text
-  category         String   // PRD Category enum value
-  impactLabel      String   // PRD ImpactLabel enum value
-  impactConfidence Float?
-  importance       String   // PRD Importance enum value
-  entities         String[] // extracted entity names
-  sourceType       String   // PRD SourceType enum value
-  sourceName       String
-  sourceUrl        String
-  publishedAt      DateTime
-  fetchedAt        DateTime @default(now())
-  citations        Json     // Citation[] stored as JSON
-  rawEventId       String?
-
-  savedBy SavedSignal[]
-
-  @@unique([sourceType, sourceUrl])
-  @@index([category])
-  @@index([impactLabel])
-  @@index([importance])
-  @@index([publishedAt(sort: Desc)])
+enum SignalStatus {
+  draft
+  published
+  archived
 }
-
-// ── SavedSignal ──────────────────────────────────────
-
-model SavedSignal {
-  id        String   @id @default(cuid())
-  userId    String
-  signalId  String
-  createdAt DateTime @default(now())
-
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  signal Signal @relation(fields: [signalId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, signalId])
-}
-
-// ── FollowTag ────────────────────────────────────────
-
-model FollowTag {
-  id        String   @id @default(cuid())
-  userId    String
-  tag       String
-  createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, tag])
-}
-
-// ── StackEntity ──────────────────────────────────────
-
-model StackEntity {
-  id             String   @id @default(cuid())
-  userId         String
-  ecosystem      String   // python, node, cloud, other
-  name           String
-  version        String?
-  normalizedName String
-  createdAt      DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, normalizedName, ecosystem])
-}
-
-// ── AnticipatedItem ──────────────────────────────────
-
-model AnticipatedItem {
-  id               String   @id @default(cuid())
-  title            String
-  whyItMatters     String   @db.Text
-  whoShouldCare    String   @db.Text
-  status           String   // Rumour, Anticipated, Unconfirmed
-  confidence       String   // Low, Medium, High
-  evidenceLinks    Json     // EvidenceLink[] as JSON
-  entities         String[]
-  firstSeenAt      DateTime @default(now())
-  lastCheckedAt    DateTime @default(now())
-  promotedSignalId String?
-
-  trackedBy TrackedAnticipated[]
-}
-
-// ── TrackedAnticipated (join table) ──────────────────
-
-model TrackedAnticipated {
-  id              String   @id @default(cuid())
-  userId          String
-  anticipatedId   String
-  createdAt       DateTime @default(now())
-
-  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  anticipated AnticipatedItem @relation(fields: [anticipatedId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, anticipatedId])
-}
-
-// ── RawEvent ─────────────────────────────────────────
 
 model RawEvent {
-  id         String   @id @default(cuid())
-  sourceType String
+  id         String     @id @default(cuid())
+  sourceType SourceType
+  sourceKey  String
   sourceUrl  String
   sourceId   String?
   payload    Json
-  fetchedAt  DateTime @default(now())
-  hash       String   @unique
+  hash       String     @unique
+  fetchedAt  DateTime   @default(now())
+
+  signals Signal[]
+
+  @@index([sourceType, fetchedAt])
+  @@index([sourceKey, fetchedAt])
 }
 
-// ── FeedMeta (singleton) ─────────────────────────────
+model Signal {
+  id               String      @id @default(cuid())
+  slug             String      @unique
+  title            String
+  mnemonicLabel    String
+  quickHitSummary  String
+  summary          String
+  whyItMatters     String
+  whoShouldCare    String
+  category         Category
+  impactLabel      ImpactLabel
+  impactConfidence Float       @default(0.5)
+  importance       Importance
+  entities         String[]    @default([])
+  sourceType       SourceType
+  sourceName       String
+  sourceUrl        String
+  publishedAt      DateTime
+  fetchedAt        DateTime    @default(now())
+  rawEventId       String?
+  rawEvent         RawEvent?   @relation(fields: [rawEventId], references: [id])
+  status           SignalStatus @default(published)
+  createdAt        DateTime    @default(now())
+  canonicalKey     String      @unique
+
+  @@index([status, publishedAt(sort: Desc)])
+  @@index([category, publishedAt(sort: Desc)])
+  @@index([impactLabel, publishedAt(sort: Desc)])
+  @@index([importance, publishedAt(sort: Desc)])
+  @@index([entities], type: Gin)
+}
+
+model SourceHealth {
+  id                   String     @id @default(cuid())
+  sourceKey            String     @unique
+  sourceType           SourceType
+  enabled              Boolean    @default(true)
+  lastSuccessAt        DateTime?
+  lastErrorAt          DateTime?
+  lastError            String?
+  consecutiveFailures  Int        @default(0)
+  totalFetches         Int        @default(0)
+  totalSignalsProduced Int        @default(0)
+  updatedAt            DateTime   @updatedAt
+
+  @@index([enabled])
+}
 
 model FeedMeta {
-  id                       String   @id @default("singleton")
-  tokenStreamLastFlowedAt  DateTime @default(now())
-  ingestionLastRunAt       DateTime @default(now())
+  id                      Int       @id @default(1)
+  tokenStreamLastFlowedAt DateTime?
+  ingestionLastRunAt      DateTime?
+  totalSignalsPublished   Int       @default(0)
+  updatedAt               DateTime  @updatedAt
 }

@@ -3,16 +3,23 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 
 export async function GET() {
-    // Upsert the singleton — ensures it always exists
-    const meta = await prisma.feedMeta.upsert({
-        where: { id: "singleton" },
-        update: {},
-        create: {
+    if (!process.env.DATABASE_URL) {
+        return NextResponse.json({
             id: "singleton",
-            tokenStreamLastFlowedAt: new Date(),
-            ingestionLastRunAt: new Date(),
-        },
-    });
+            tokenStreamLastFlowedAt: new Date().toISOString(),
+            ingestionLastRunAt: new Date().toISOString(),
+        });
+    }
 
-    return NextResponse.json(meta);
+    try {
+        const meta = await prisma.feedMeta.upsert({
+            where: { id: 1 },
+            update: {},
+            create: { id: 1 },
+        });
+        return NextResponse.json(meta);
+    } catch (error) {
+        console.error("Failed to fetch meta:", error);
+        return NextResponse.json({ error: "Failed to fetch meta" }, { status: 500 });
+    }
 }
