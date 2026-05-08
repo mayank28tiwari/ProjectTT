@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 106, "column": 0}, "map": {"version":3,"sources":["file:///Users/clawbrain/Desktop/project-tt/ProjectTT/src/app/api/auth/%5B...nextauth%5D/route.ts"],"sourcesContent":["import NextAuth from \"next-auth\";\nimport GoogleProvider from \"next-auth/providers/google\";\n\nconst handler = NextAuth({\n    providers: [\n        GoogleProvider({\n            clientId: process.env.GOOGLE_CLIENT_ID || \"\",\n            clientSecret: process.env.GOOGLE_CLIENT_SECRET || \"\",\n        }),\n    ],\n    pages: {\n        signIn: '/feed', // Redirect to feed on sign in request if generic\n    },\n    callbacks: {\n        async session({ session, token }) {\n            return session;\n        }\n    }\n});\n\nexport { handler as GET, handler as POST };\n"],"names":[],"mappings":";;;;;;AAAA;AACA;;;AAEA,MAAM,UAAU,IAAA,kJAAQ,EAAC;IACrB,WAAW;QACP,IAAA,gKAAc,EAAC;YACX,UAAU,QAAQ,GAAG,CAAC,gBAAgB,IAAI;YAC1C,cAAc,QAAQ,GAAG,CAAC,oBAAoB,IAAI;QACtD;KACH;IACD,OAAO;QACH,QAAQ;IACZ;IACA,WAAW;QACP,MAAM,SAAQ,EAAE,OAAO,EAAE,KAAK,EAAE;YAC5B,OAAO;QACX;IACJ;AACJ"}}]
-}
